@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VELOCE — Автомобили с историей происхождения</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #101113;
+    --surface: #17181c;
+    --surface-2: #1e2024;
+    --line: #2a2c31;
+    --ink: #EDEDE7;
+    --muted: #8b8d93;
+    --ferrari: #c4172d;
+    --ferrari-dim: #7a2430;
+    --mercedes: #9fb4be;
+    --mercedes-dim: #4d5a60;
+    --gold: #c9a227;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Inter', sans-serif;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none !important; transition:none !important;}
+  }
+  .noise{
+    position:fixed; inset:0; pointer-events:none; z-index:1; opacity:.035; mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* ---------- NAV ---------- */
+  nav{
+    position:sticky; top:0; z-index:50;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:22px 6vw;
+    background:rgba(16,17,19,.85);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+    gap:16px;
+  }
+  .logo{
+    font-family:'Bebas Neue', sans-serif;
+    font-size:26px;
+    letter-spacing:3px;
+    display:flex; align-items:center; gap:10px;
+    flex-shrink:0;
+  }
+  .logo .dot{width:8px; height:8px; background:var(--ferrari); border-radius:50%; display:inline-block;}
+  nav .links{display:flex; gap:34px; font-size:14px; color:var(--muted);}
+  nav .links a{color:var(--muted); text-decoration:none; transition:color .2s;}
+  nav .links a:hover{color:var(--ink);}
+  .nav-cta{
+    font-size:13px; font-weight:600; letter-spacing:.3px;
+    color:var(--bg); background:var(--ink); padding:10px 18px; border-radius:2px;
+    text-decoration:none; flex-shrink:0; white-space:nowrap;
+  }
+  .nav-toggle{
+    display:none; background:transparent; border:1px solid var(--line); color:var(--ink);
+    width:40px; height:40px; border-radius:2px; cursor:pointer;
+    align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .nav-toggle svg{width:18px; height:18px;}
+  .nav-toggle .icon-close{display:none;}
+  .nav-toggle.open .icon-menu{display:none;}
+  .nav-toggle.open .icon-close{display:block;}
+
+  .mobile-menu{
+    position:absolute; top:100%; left:0; right:0; z-index:49;
+    background:var(--surface); border-bottom:1px solid var(--line);
+    display:flex; flex-direction:column; padding:6px 6vw 18px;
+    transform:translateY(-10px); opacity:0; visibility:hidden; pointer-events:none;
+    transition:transform .25s ease, opacity .25s ease, visibility 0s linear .25s;
+  }
+  .mobile-menu.open{
+    transform:translateY(0); opacity:1; visibility:visible; pointer-events:auto;
+    transition:transform .25s ease, opacity .25s ease, visibility 0s linear 0s;
+  }
+  .mobile-menu a{
+    color:var(--ink); text-decoration:none; padding:15px 2px; font-size:15px;
+    border-bottom:1px solid var(--line);
+  }
+  .mobile-menu a:last-of-type{border-bottom:none;}
+  .mobile-menu .mm-cta{
+    margin-top:14px; text-align:center; background:var(--ink); color:var(--bg);
+    padding:13px; border-radius:2px; font-weight:600; font-size:13px;
+  }
+
+  @media (max-width: 860px){
+    nav .links{display:none;}
+    .nav-cta{display:none;}
+    .nav-toggle{display:flex;}
+  }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    position:relative;
+    padding:9vw 6vw 6vw;
+    border-bottom:1px solid var(--line);
+    overflow:hidden;
+  }
+  .hero::before{
+    content:"";
+    position:absolute; inset:0;
+    background:
+      linear-gradient(var(--line) 1px, transparent 1px) 0 0/100% 64px,
+      linear-gradient(90deg, var(--line) 1px, transparent 1px) 0 0/64px 100%;
+    opacity:.18;
+    mask-image: radial-gradient(ellipse 70% 60% at 50% 20%, black 20%, transparent 75%);
+  }
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px; letter-spacing:2.5px; color:var(--gold);
+    text-transform:uppercase;
+    display:flex; align-items:center; gap:10px; margin-bottom:22px;
+    position:relative;
+  }
+  .eyebrow::before{content:""; width:26px; height:1px; background:var(--gold);}
+  h1{
+    font-family:'Bebas Neue', sans-serif;
+    font-size:clamp(46px, 8vw, 108px);
+    line-height:.94;
+    letter-spacing:.5px;
+    max-width:16ch;
+    position:relative;
+  }
+  h1 em{font-style:normal; color:var(--ferrari);}
+  .hero-sub{
+    color:var(--muted); font-size:17px; max-width:46ch; margin-top:26px; line-height:1.6;
+    position:relative;
+  }
+
+  /* Search - styled like a tuner / instrument dial */
+  .search-wrap{
+    margin-top:52px; position:relative; max-width:640px;
+  }
+  .search-label{
+    font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:2px;
+    color:var(--muted); text-transform:uppercase; margin-bottom:10px; display:block;
+  }
+  .search-box{
+    display:flex; align-items:center; gap:14px;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:2px;
+    padding:6px 6px 6px 20px;
+    transition:border-color .25s, box-shadow .25s;
+  }
+  .search-box:focus-within{
+    border-color:var(--ferrari);
+    box-shadow:0 0 0 3px rgba(196,23,45,.12);
+  }
+  .search-box svg{flex-shrink:0; opacity:.6;}
+  #search{
+    flex:1; background:transparent; border:none; outline:none;
+    color:var(--ink); font-family:'IBM Plex Mono', monospace; font-size:15px;
+    padding:14px 0;
+  }
+  #search::placeholder{color:var(--muted);}
+  .search-count{
+    font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--muted);
+    background:var(--surface-2); padding:12px 16px; border-radius:2px; white-space:nowrap;
+  }
+  .search-count b{color:var(--gold); font-weight:600;}
+
+  /* stat strip */
+  .stat-strip{
+    display:flex; gap:0; margin-top:56px; flex-wrap:wrap;
+    border-top:1px solid var(--line);
+  }
+  .stat{
+    flex:1; min-width:140px; padding:22px 26px 0; border-right:1px solid var(--line);
+  }
+  .stat:last-child{border-right:none;}
+  .stat .num{font-family:'Bebas Neue', sans-serif; font-size:36px; color:var(--ink); display:block;}
+  .stat .label{font-size:12px; color:var(--muted); margin-top:4px; letter-spacing:.4px;}
+
+  /* ---------- INVENTORY ---------- */
+  .inventory{padding:5vw 6vw 8vw; scroll-margin-top:88px;}
+  .inv-head{
+    display:flex; align-items:flex-end; justify-content:space-between; gap:20px;
+    margin-bottom:38px; flex-wrap:wrap;
+  }
+  .inv-head h2{
+    font-family:'Bebas Neue', sans-serif; font-size:40px; letter-spacing:.5px;
+  }
+  .filter-row{display:flex; gap:10px; flex-wrap:wrap;}
+  .filter-btn{
+    font-family:'IBM Plex Mono', monospace; font-size:12px; letter-spacing:1px;
+    text-transform:uppercase;
+    background:transparent; color:var(--muted); border:1px solid var(--line);
+    padding:9px 16px; border-radius:2px; cursor:pointer; transition:all .2s;
+  }
+  .filter-btn:hover{color:var(--ink); border-color:var(--muted);}
+  .filter-btn.active{background:var(--ink); color:var(--bg); border-color:var(--ink);}
+
+  .grid{
+    display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:22px;
+  }
+
+  .card{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:2px;
+    position:relative;
+    overflow:hidden;
+    transition:transform .35s cubic-bezier(.2,.8,.2,1), border-color .35s;
+  }
+  .card:hover{transform:translateY(-4px); border-color:#3a3d43;}
+  .card .corner{
+    position:absolute; top:0; right:0; width:0; height:0;
+    border-style:solid; border-width:0 34px 34px 0; border-color:transparent var(--surface-2) transparent transparent;
+    z-index:2;
+  }
+  .card .code{
+    position:absolute; top:9px; right:6px; font-family:'IBM Plex Mono', monospace;
+    font-size:9px; color:var(--muted); z-index:3; letter-spacing:.5px;
+  }
+  .card-media{
+    height:190px; position:relative;
+    display:flex; align-items:center; justify-content:center;
+    border-bottom:1px solid var(--line);
+    background:
+      repeating-linear-gradient(0deg, rgba(255,255,255,.025) 0 1px, transparent 1px 22px),
+      repeating-linear-gradient(90deg, rgba(255,255,255,.025) 0 1px, transparent 1px 22px);
+    overflow:hidden;
+  }
+  .card-media svg{width:78%; height:auto; filter:drop-shadow(0 8px 18px rgba(0,0,0,.5));}
+  .card-media img{
+    width:100%; height:100%; object-fit:cover; display:block;
+    filter:saturate(1.05) contrast(1.03);
+    transition:transform .5s cubic-bezier(.2,.8,.2,1);
+  }
+  .card:hover .card-media img{transform:scale(1.06);}
+  .badge{
+    position:absolute; top:14px; left:14px; z-index:3;
+    font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:1.5px;
+    text-transform:uppercase; padding:5px 10px; border-radius:2px;
+    color:var(--accent);
+    background:color-mix(in srgb, var(--accent) 16%, transparent);
+    border:1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  }
+
+  .card-body{padding:20px 22px 22px;}
+  .card-brand{font-size:11px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; margin-bottom:4px;}
+  .card-model{font-family:'Bebas Neue', sans-serif; font-size:28px; letter-spacing:.3px; margin-bottom:14px;}
+
+  .spec-grid{
+    display:grid; grid-template-columns:repeat(3, 1fr); gap:0;
+    border-top:1px solid var(--line); border-bottom:1px solid var(--line);
+    margin-bottom:16px;
+  }
+  .spec{padding:10px 0; text-align:left;}
+  .spec + .spec{border-left:1px solid var(--line); padding-left:12px;}
+  .spec .val{font-family:'IBM Plex Mono', monospace; font-size:15px; font-weight:600;}
+  .spec .lbl{font-size:10px; color:var(--muted); margin-top:2px; letter-spacing:.5px;}
+
+  .card-foot{display:flex; align-items:center; justify-content:space-between;}
+  .price{font-family:'IBM Plex Mono', monospace; font-size:16px; color:var(--gold); font-weight:600;}
+  .price span{color:var(--muted); font-size:11px; display:block; font-weight:400; margin-top:2px;}
+  .view-btn{
+    font-size:12px; font-weight:600; color:var(--ink); background:transparent;
+    border:1px solid var(--line); padding:9px 14px; border-radius:2px; cursor:pointer;
+    transition:all .2s; letter-spacing:.3px;
+  }
+  .view-btn:hover{background:var(--ink); color:var(--bg); border-color:var(--ink);}
+
+  .empty{
+    grid-column:1/-1; text-align:center; padding:70px 20px; color:var(--muted);
+    border:1px dashed var(--line); border-radius:2px;
+  }
+  .empty b{color:var(--ink); font-family:'IBM Plex Mono', monospace;}
+
+  footer{
+    border-top:1px solid var(--line); padding:34px 6vw; display:flex; justify-content:space-between;
+    color:var(--muted); font-size:13px; flex-wrap:wrap; gap:10px;
+  }
+
+  /* ---------- CONTENT SECTIONS (trade-in / financing / service) ---------- */
+  .content-section{
+    padding:6vw 6vw 7vw; border-top:1px solid var(--line);
+    scroll-margin-top:88px;
+  }
+  .cs-head{margin-bottom:38px; max-width:60ch;}
+  .cs-head h2{font-family:'Bebas Neue', sans-serif; font-size:40px; letter-spacing:.5px; margin-top:6px; margin-bottom:12px;}
+  .cs-head p{color:var(--muted); font-size:15px; line-height:1.7;}
+
+  .info-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:20px;}
+  .info-card{
+    background:var(--surface); border:1px solid var(--line); border-radius:2px;
+    padding:26px 24px; position:relative; overflow:hidden;
+    transition:transform .3s cubic-bezier(.2,.8,.2,1), border-color .3s;
+  }
+  .info-card:hover{transform:translateY(-4px); border-color:#3a3d43;}
+  .info-card .ic-index{
+    font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--gold); letter-spacing:1px; margin-bottom:14px; display:block;
+  }
+  .info-card h3{font-family:'Bebas Neue', sans-serif; font-size:24px; letter-spacing:.3px; margin-bottom:10px;}
+  .info-card .ic-desc{color:var(--muted); font-size:13.5px; line-height:1.6; margin-bottom:18px; min-height:60px;}
+  .info-card .ic-figure{
+    font-family:'IBM Plex Mono', monospace; font-size:19px; color:var(--ink); font-weight:600;
+    border-top:1px solid var(--line); padding-top:14px; margin-bottom:18px;
+  }
+  .info-card .ic-figure span{display:block; font-size:10px; color:var(--muted); font-weight:400; margin-top:3px; letter-spacing:.5px; text-transform:uppercase;}
+  .ic-btn{
+    width:100%; font-size:12.5px; font-weight:600; letter-spacing:.3px;
+    color:var(--ink); background:transparent; border:1px solid var(--line);
+    padding:11px 14px; border-radius:2px; cursor:pointer; transition:all .2s;
+  }
+  .ic-btn:hover{background:var(--ink); color:var(--bg); border-color:var(--ink);}
+
+  /* ---------- MODAL ---------- */
+  .overlay{
+    position:fixed; inset:0; z-index:100;
+    background:rgba(8,9,10,.7);
+    backdrop-filter:blur(6px);
+    display:flex; align-items:center; justify-content:center;
+    padding:24px;
+    opacity:0; visibility:hidden;
+    transition:opacity .35s ease, visibility 0s linear .35s;
+  }
+  .overlay.open{
+    opacity:1; visibility:visible;
+    transition:opacity .35s ease, visibility 0s linear 0s;
+  }
+  .modal{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:3px;
+    max-width:760px; width:100%;
+    max-height:88vh; overflow-y:auto;
+    position:relative;
+    transform:translateY(28px) scale(.97);
+    opacity:0;
+    transition:transform .4s cubic-bezier(.2,.8,.2,1), opacity .4s ease;
+  }
+  .overlay.open .modal{
+    transform:translateY(0) scale(1);
+    opacity:1;
+  }
+  .modal-media{
+    height:280px; position:relative; border-bottom:1px solid var(--line);
+    background:
+      repeating-linear-gradient(0deg, rgba(255,255,255,.025) 0 1px, transparent 1px 22px),
+      repeating-linear-gradient(90deg, rgba(255,255,255,.025) 0 1px, transparent 1px 22px);
+    overflow:hidden;
+  }
+  .modal-media img{width:100%; height:100%; object-fit:cover; display:block;}
+  .modal-close{
+    position:absolute; top:16px; right:16px; z-index:5;
+    width:38px; height:38px; border-radius:50%;
+    background:rgba(16,17,19,.65); border:1px solid rgba(255,255,255,.15);
+    color:var(--ink); font-size:18px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    transition:background .2s, transform .2s;
+  }
+  .modal-close:hover{background:rgba(196,23,45,.75); transform:rotate(90deg);}
+  .modal-badge{
+    position:absolute; top:16px; left:16px; z-index:5;
+    font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:1.5px;
+    text-transform:uppercase; padding:6px 12px; border-radius:2px;
+    color:var(--accent);
+    background:color-mix(in srgb, var(--accent) 18%, transparent);
+    border:1px solid color-mix(in srgb, var(--accent) 50%, transparent);
+  }
+  .modal-body{padding:28px 32px 32px;}
+  .modal-eyebrow{font-size:11px; letter-spacing:2px; color:var(--muted); text-transform:uppercase; margin-bottom:6px;}
+  .modal-title{font-family:'Bebas Neue', sans-serif; font-size:42px; letter-spacing:.3px; margin-bottom:16px;}
+  .modal-desc{color:var(--muted); line-height:1.7; font-size:15px; margin-bottom:24px; max-width:60ch;}
+  .modal-specs{
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(120px, 1fr)); gap:0;
+    border-top:1px solid var(--line); border-bottom:1px solid var(--line);
+    margin-bottom:26px;
+  }
+  .modal-spec{padding:16px 18px 16px 0;}
+  .modal-spec + .modal-spec{border-left:1px solid var(--line); padding-left:18px;}
+  .modal-spec .val{font-family:'IBM Plex Mono', monospace; font-size:20px; font-weight:600;}
+  .modal-spec .lbl{font-size:10px; color:var(--muted); margin-top:4px; letter-spacing:.6px; text-transform:uppercase;}
+  .modal-foot{display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px;}
+  .modal-price{font-family:'IBM Plex Mono', monospace; font-size:22px; color:var(--gold); font-weight:600;}
+  .modal-price span{color:var(--muted); font-size:12px; display:block; font-weight:400; margin-top:2px;}
+  .modal-cta{
+    font-size:13px; font-weight:600; letter-spacing:.3px;
+    color:var(--bg); background:var(--ink); padding:13px 24px; border-radius:2px;
+    border:none; cursor:pointer; transition:background .2s;
+  }
+  .modal-cta:hover{background:var(--gold);}
+
+  @media (max-width:600px){
+    .modal-title{font-size:32px;}
+    .modal-body{padding:22px 20px 26px;}
+  }
+
+  /* ---------- BOOKING FORM MODAL ---------- */
+  .book-modal{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:3px;
+    max-width:480px; width:100%;
+    max-height:88vh; overflow-y:auto;
+    position:relative;
+    transform:translateY(28px) scale(.97);
+    opacity:0;
+    transition:transform .4s cubic-bezier(.2,.8,.2,1), opacity .4s ease;
+  }
+  .overlay.open .book-modal{transform:translateY(0) scale(1); opacity:1;}
+  .book-body{padding:32px 30px;}
+  .book-eyebrow{font-size:11px; letter-spacing:2px; color:var(--gold); text-transform:uppercase; margin-bottom:8px;}
+  .book-title{font-family:'Bebas Neue', sans-serif; font-size:34px; letter-spacing:.3px; margin-bottom:6px;}
+  .book-sub{color:var(--muted); font-size:14px; margin-bottom:26px;}
+  .book-sub b{color:var(--ink); font-weight:600;}
+
+  .field{margin-bottom:18px; position:relative;}
+  .field label{
+    display:block; font-size:11px; letter-spacing:1px; text-transform:uppercase;
+    color:var(--muted); margin-bottom:8px;
+  }
+  .field input, .field textarea{
+    width:100%; background:var(--surface-2); border:1px solid var(--line); border-radius:2px;
+    color:var(--ink); font-family:'Inter', sans-serif; font-size:15px; padding:13px 14px;
+    outline:none; transition:border-color .2s, box-shadow .2s;
+  }
+  .field textarea{resize:vertical; min-height:80px; font-family:'Inter', sans-serif;}
+  .field input:focus, .field textarea:focus{
+    border-color:var(--gold); box-shadow:0 0 0 3px rgba(201,162,39,.12);
+  }
+  .field input.error, .field textarea.error{border-color:var(--ferrari);}
+  .field .err-msg{
+    display:none; font-size:12px; color:var(--ferrari); margin-top:6px;
+    font-family:'IBM Plex Mono', monospace;
+  }
+  .field.invalid .err-msg{display:block;}
+  .field.invalid input, .field.invalid textarea{border-color:var(--ferrari);}
+
+  .book-submit{
+    width:100%; font-size:14px; font-weight:600; letter-spacing:.3px;
+    color:var(--bg); background:var(--ink); padding:15px; border-radius:2px;
+    border:none; cursor:pointer; transition:background .2s, transform .1s; margin-top:6px;
+  }
+  .book-submit:hover{background:var(--gold);}
+  .book-submit:active{transform:scale(.98);}
+  .book-note{font-size:11px; color:var(--muted); margin-top:14px; text-align:center; line-height:1.5;}
+
+  /* success state */
+  .book-success{
+    display:none; flex-direction:column; align-items:center; text-align:center;
+    padding:52px 30px 44px;
+  }
+  .book-success.show{display:flex;}
+  .book-form.hide{display:none;}
+  .success-ring{
+    width:72px; height:72px; border-radius:50%;
+    border:2px solid var(--gold);
+    display:flex; align-items:center; justify-content:center;
+    margin-bottom:22px;
+    animation: pop .5s cubic-bezier(.2,.8,.2,1);
+  }
+  .success-ring svg{width:30px; height:30px; stroke:var(--gold);}
+  @keyframes pop{
+    0%{transform:scale(.6); opacity:0;}
+    60%{transform:scale(1.08); opacity:1;}
+    100%{transform:scale(1);}
+  }
+  .book-success h4{font-family:'Bebas Neue', sans-serif; font-size:28px; letter-spacing:.3px; margin-bottom:10px;}
+  .book-success p{color:var(--muted); font-size:14px; max-width:34ch; line-height:1.6; margin-bottom:26px;}
+  .success-close{
+    font-size:13px; font-weight:600; color:var(--ink); background:transparent;
+    border:1px solid var(--line); padding:11px 22px; border-radius:2px; cursor:pointer;
+    transition:all .2s;
+  }
+  .success-close:hover{background:var(--ink); color:var(--bg);}
+
+  @media (max-width:600px){
+    .stat-strip{display:none;}
+    .search-count{display:none;}
+  }
+
+  /* =====================================================
+     RESPONSIVE — TABLET (≤1024px)
+  ===================================================== */
+  @media (max-width:1024px){
+    .grid{grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));}
+    .info-grid{grid-template-columns:repeat(auto-fill, minmax(230px, 1fr));}
+    .hero{padding:12vw 6vw 8vw;}
+    .modal{max-width:92vw;}
+  }
+
+  /* =====================================================
+     RESPONSIVE — PHONE (≤600px)
+  ===================================================== */
+  @media (max-width:600px){
+    nav{padding:16px 5vw;}
+    .logo{font-size:21px;}
+    .nav-toggle{width:36px; height:36px;}
+
+    .hero{padding:16vw 5.5vw 10vw;}
+    .eyebrow{font-size:11px; margin-bottom:16px;}
+    h1{font-size:clamp(38px, 11vw, 56px); max-width:14ch;}
+    .hero-sub{font-size:15px; margin-top:18px;}
+
+    .search-wrap{margin-top:32px;}
+    .search-box{padding:4px 4px 4px 14px;}
+    #search{font-size:14px; padding:12px 0;}
+
+    .inventory, .content-section{padding:14vw 5.5vw 12vw;}
+    .inv-head{margin-bottom:26px;}
+    .inv-head h2, .cs-head h2{font-size:30px;}
+    .filter-row{gap:8px;}
+    .filter-btn{font-size:11px; padding:8px 13px;}
+
+    .grid{grid-template-columns:1fr; gap:16px;}
+    .info-grid{grid-template-columns:1fr; gap:14px;}
+    .info-card{padding:22px 20px;}
+    .card-model{font-size:24px;}
+    .spec-grid{margin-bottom:14px;}
+
+    /* car detail modal */
+    .overlay{padding:0; align-items:flex-end;}
+    .modal{
+      max-width:100vw; max-height:92vh; width:100%;
+      border-radius:14px 14px 0 0;
+      transform:translateY(100%);
+    }
+    .overlay.open .modal{transform:translateY(0);}
+    .modal-media{height:220px;}
+    .modal-title{font-size:30px;}
+    .modal-body{padding:20px 18px 26px;}
+    .modal-specs{grid-template-columns:repeat(3, 1fr);}
+    .modal-spec .val{font-size:16px;}
+    .modal-foot{flex-direction:column; align-items:stretch; gap:14px;}
+    .modal-cta{width:100%;}
+
+    /* booking form modal */
+    .overlay#bookOverlay .book-modal{
+      max-width:100vw; width:100%; max-height:92vh;
+      border-radius:14px 14px 0 0;
+      transform:translateY(100%);
+    }
+    .overlay#bookOverlay.open .book-modal{transform:translateY(0);}
+    .book-body{padding:24px 20px 28px;}
+    .book-title{font-size:28px;}
+
+    footer{flex-direction:column; align-items:flex-start; padding:26px 5.5vw;}
+  }
+
+  @media (max-width:380px){
+    h1{font-size:34px;}
+    .card-model, .modal-title{font-size:22px;}
+  }
+</style>
+</head>
+<body>
+<div class="noise"></div>
+
+<nav id="mainNav">
+  <div class="logo"><span class="dot"></span>VELOCE</div>
+  <div class="links">
+    <a href="#inventory">Каталог</a>
+    <a href="#trade-in">Trade-in</a>
+    <a href="#financing">Финансирование</a>
+    <a href="#service">Сервис</a>
+  </div>
+  <a href="#inventory" class="nav-cta">Смотреть каталог</a>
+  <button class="nav-toggle" id="navToggle" aria-label="Открыть меню" aria-expanded="false">
+    <svg class="icon-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    <svg class="icon-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg>
+  </button>
+
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="#inventory">Каталог</a>
+    <a href="#trade-in">Trade-in</a>
+    <a href="#financing">Финансирование</a>
+    <a href="#service">Сервис</a>
+    <a href="#inventory" class="mm-cta">Смотреть каталог</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="eyebrow">Сертифицированный дилер · с 2009 года</div>
+  <h1>Машины, у которых <em>есть</em> родословная.</h1>
+  <p class="hero-sub">Каждый автомобиль в нашем каталоге проходит 187-пунктовую техническую проверку и продаётся с полной историей обслуживания. Ferrari, Mercedes-Benz, Porsche, Lamborghini и BMW — в наличии и под заказ.</p>
+
+  <div class="search-wrap">
+    <span class="search-label">Поиск по каталогу</span>
+    <div class="search-box">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input id="search" type="text" placeholder="Например: SF90, GT 63, Roma, AMG…" autocomplete="off">
+      <span class="search-count"><b id="count">12</b> моделей</span>
+    </div>
+  </div>
+
+  <div class="stat-strip">
+    <div class="stat"><span class="num">12</span><span class="label">Автомобилей в наличии</span></div>
+    <div class="stat"><span class="num">5</span><span class="label">Марок-партнёров</span></div>
+    <div class="stat"><span class="num">187</span><span class="label">Пунктов проверки</span></div>
+    <div class="stat"><span class="num">24ч</span><span class="label">Ответ на заявку</span></div>
+  </div>
+</section>
+
+<section class="inventory" id="inventory">
+  <div class="inv-head">
+    <h2>Каталог автомобилей</h2>
+    <div class="filter-row" id="filterRow"></div>
+  </div>
+
+  <div class="grid" id="grid"><!-- cards injected by JS --></div>
+</section>
+
+<section class="content-section" id="trade-in">
+  <div class="cs-head">
+    <div class="eyebrow">Trade-in</div>
+    <h2>Обменяйте свой автомобиль с доплатой</h2>
+    <p>Принимаем в зачёт бензиновые, дизельные и гибридные автомобили любых марок. Предварительная оценка — за 15 минут, без визита на стороннюю СТО. Итоговая сумма фиксируется после осмотра и не меняется в момент сделки.</p>
+  </div>
+  <div class="info-grid">
+    <div class="info-card">
+      <span class="ic-index">Категория 01</span>
+      <h3>Эконом и компакт-класс</h3>
+      <p class="ic-desc">Хэтчбеки и седаны B/C-класса возрастом до 8 лет, пробег до 150 000 км.</p>
+      <div class="ic-figure">300 000 – 1 200 000 ₽<span>ориентировочный диапазон</span></div>
+      <button class="ic-btn" onclick="openBooking('Оценка авто по trade-in: эконом-класс')">Оценить мой автомобиль</button>
+    </div>
+    <div class="info-card">
+      <span class="ic-index">Категория 02</span>
+      <h3>Кроссоверы и внедорожники</h3>
+      <p class="ic-desc">SUV любого класса, включая полноприводные версии и гибриды.</p>
+      <div class="ic-figure">900 000 – 3 500 000 ₽<span>ориентировочный диапазон</span></div>
+      <button class="ic-btn" onclick="openBooking('Оценка авто по trade-in: кроссовер')">Оценить мой автомобиль</button>
+    </div>
+    <div class="info-card">
+      <span class="ic-index">Категория 03</span>
+      <h3>Премиум седаны и купе</h3>
+      <p class="ic-desc">Представительские и спортивные модели немецких и японских марок.</p>
+      <div class="ic-figure">1 800 000 – 6 000 000 ₽<span>ориентировочный диапазон</span></div>
+      <button class="ic-btn" onclick="openBooking('Оценка авто по trade-in: премиум-класс')">Оценить мой автомобиль</button>
+    </div>
+    <div class="info-card">
+      <span class="ic-index">Категория 04</span>
+      <h3>Спорткары и суперкары</h3>
+      <p class="ic-desc">Ferrari, Lamborghini, Porsche и другие эксклюзивные модели.</p>
+      <div class="ic-figure">4 000 000 – 20 000 000 ₽<span>ориентировочный диапазон</span></div>
+      <button class="ic-btn" onclick="openBooking('Оценка авто по trade-in: спорткар')">Оценить мой автомобиль</button>
+    </div>
+  </div>
+</section>
+
+<section class="content-section" id="financing">
+  <div class="cs-head">
+    <div class="eyebrow">Финансирование</div>
+    <h2>Программы на любой бюджет</h2>
+    <p>Работаем напрямую с банками-партнёрами и лизинговыми компаниями. Предварительное решение — от 1 дня, без справки о доходах для сумм до 10 000 000 ₽.</p>
+  </div>
+  <div class="info-grid">
+    <div class="info-card">
+      <span class="ic-index">Программа 01</span>
+      <h3>Автокредит</h3>
+      <p class="ic-desc">Классический кредит на новый или подержанный автомобиль из каталога.</p>
+      <div class="ic-figure">от 11.9%<span>ставка · срок до 7 лет</span></div>
+      <button class="ic-btn" onclick="openBooking('Заявка на автокредит')">Подать заявку</button>
+    </div>
+    <div class="info-card">
+      <span class="ic-index">Программа 02</span>
+      <h3>Trade-in кредит</h3>
+      <p class="ic-desc">Сдайте старый автомобиль в зачёт и получите сниженную ставку на новый.</p>
+      <div class="ic-figure">от 9.9%<span>ставка · доп. скидка за trade-in</span></div>
+      <button class="ic-btn" onclick="openBooking('Заявка на trade-in кредит')">Подать заявку</button>
+    </div>
+    <div class="info-card">
+      <span class="ic-index">Программа 03</span>
+      <h3>Лизинг для юрлиц</h3>
+      <p class="ic-desc">Оформление на компанию, налоговые льготы, ускоренная амортизация.</p>
+      <div class="ic-figure">без взноса<span>первоначальный платёж от 0%</span></div>
+      <button class="ic-btn" onclick="openBooking('Заявка на лизинг для юрлиц')">Подать заявку</button>
+    </div>
+  </div>
+</section>
+
+<section class="content-section" id="service">
+  <div class="cs-head">
+    <div class="eyebrow">Сервис</div>
+    <h2>Обслуживание и уход за автомобилем</h2>
+    <p>Собственный технический центр с оригинальными запчастями и сертифицированными мастерами по каждой из представленных марок.</p>
+  </div>
+  <div class="info-grid">
+    <div class="info-card">
+      <span class="ic-index">Услуга 01</span>
+      <h3>ТО по регламенту</h3>
+      <p class="ic-desc">Плановое обслуживание по регламенту производителя с сохранением гарантии.</p>
+      <div class="ic-figure">от 25 000 ₽<span>стоимость зависит от модели</span></div>
+      <button class="ic-btn" onclick="openBooking('Запись на услугу: ТО по регламенту')">Записаться</button>
+    </div>
+    <div class="info-card">
+      <span class="ic-index">Услуга 02</span>
+      <h3>Детейлинг и защитные покрытия</h3>
+      <p class="ic-desc">Керамика, антигравийная плёнка, полировка кузова и салона.</p>
+      <div class="ic-figure">от 45 000 ₽<span>стоимость зависит от объёма работ</span></div>
+      <button class="ic-btn" onclick="openBooking('Запись на услугу: детейлинг')">Записаться</button>
+    </div>
+    <div class="info-card">
+      <span class="ic-index">Услуга 03</span>
+      <h3>Кузовной ремонт и покраска</h3>
+      <p class="ic-desc">Малярный цех с подбором цвета в тон и гарантией на работы.</p>
+      <div class="ic-figure">от 60 000 ₽<span>стоимость по итогам дефектовки</span></div>
+      <button class="ic-btn" onclick="openBooking('Запись на услугу: кузовной ремонт')">Записаться</button>
+    </div>
+    <div class="info-card">
+      <span class="ic-index">Услуга 04</span>
+      <h3>Шиномонтаж и хранение шин</h3>
+      <p class="ic-desc">Сезонная замена, балансировка и хранение комплекта на складе.</p>
+      <div class="ic-figure">от 8 000 ₽<span>сезонный комплект работ</span></div>
+      <button class="ic-btn" onclick="openBooking('Запись на услугу: шиномонтаж')">Записаться</button>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span>© 2026 VELOCE Motors. Все автомобили продаются через официальных партнёров.</span>
+  <span>Каталог обновлён сегодня</span>
+</footer>
+
+<div class="overlay" id="overlay">
+  <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-media" id="modalMedia">
+      <span class="modal-badge" id="modalBadge"></span>
+      <button class="modal-close" id="modalClose" aria-label="Закрыть">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-eyebrow" id="modalBrand"></div>
+      <h3 class="modal-title" id="modalTitle"></h3>
+      <p class="modal-desc" id="modalDesc"></p>
+      <div class="modal-specs" id="modalSpecs"></div>
+      <div class="modal-foot">
+        <div class="modal-price" id="modalPrice"></div>
+        <button class="modal-cta" id="modalCta">Записаться на тест-драйв</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="bookOverlay">
+  <div class="book-modal" id="bookModal" role="dialog" aria-modal="true" aria-labelledby="bookTitle">
+    <button class="modal-close" id="bookClose" aria-label="Закрыть" style="position:absolute; top:16px; right:16px; z-index:5;">✕</button>
+
+    <form class="book-form" id="bookForm" novalidate>
+      <div class="book-body">
+        <div class="book-eyebrow">Запись на тест-драйв</div>
+        <h3 class="book-title" id="bookTitle">Ferrari 296 GTB</h3>
+        <p class="book-sub">Оставьте контакты — менеджер подтвердит время в течение <b>24 часов</b>.</p>
+
+        <div class="field" id="fieldName">
+          <label for="inputName">Имя</label>
+          <input type="text" id="inputName" name="name" placeholder="Как к вам обращаться" autocomplete="name">
+          <div class="err-msg">Введите имя (минимум 2 символа)</div>
+        </div>
+
+        <div class="field" id="fieldPhone">
+          <label for="inputPhone">Телефон</label>
+          <input type="tel" id="inputPhone" name="phone" placeholder="+7 900 000-00-00" autocomplete="tel">
+          <div class="err-msg">Введите корректный номер телефона</div>
+        </div>
+
+        <div class="field" id="fieldDate">
+          <label for="inputDate">Удобная дата</label>
+          <input type="date" id="inputDate" name="date" autocomplete="off">
+          <div class="err-msg">Выберите дату не раньше сегодняшней</div>
+        </div>
+
+        <div class="field">
+          <label for="inputComment">Комментарий (необязательно)</label>
+          <textarea id="inputComment" name="comment" placeholder="Удобное время, доп. вопросы…"></textarea>
+        </div>
+
+        <button type="submit" class="book-submit">Отправить заявку</button>
+        <div class="book-note">Нажимая «Отправить», вы соглашаетесь на обработку персональных данных.</div>
+      </div>
+    </form>
+
+    <div class="book-success" id="bookSuccess">
+      <div class="success-ring">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+      </div>
+      <h4>Заявка отправлена</h4>
+      <p>Мы получили запрос на тест-драйв <b id="successCarName"></b> и свяжемся с вами по указанному телефону в течение 24 часов.</p>
+      <button class="success-close" id="successClose">Закрыть</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ВАЖНО: src ниже — временные плейсхолдеры (сервис placehold.co).
+// Замени значение img на прямую ссылку на реальное фото (например, с твоего
+// хостинга, официального пресс-кита марки или купленного стокового фото)
+// — просто подставь новый URL, вёрстка и модалка ничего менять не нужно.
+const CARS = [
+  {
+    id: "f296", brand: "ferrari", brandLabel: "Ferrari", model: "296 GTB",
+    code: "F171-296", power: "830 л.с.", accel: "2.9с", top: "330 км/ч",
+    price: "от 34 900 000 ₽", color: "#c4172d",
+    img: "https://placehold.co/900x600/1a1112/c4172d?text=Ferrari+296+GTB",
+    desc: "Компактный гибридный купе, в котором к 3-литровому V6 подключён электромотор — суммарно 830 сил при массе легче, чем у большинства конкурентов. 296 GTB создавался как самый острый и отзывчивый Ferrari в линейке гран-туризмо: короткая база, руль, скопированный по ощущениям с болидов Формулы-1, и полностью электрический режим для города."
+  },
+  {
+    id: "sf90", brand: "ferrari", brandLabel: "Ferrari", model: "SF90 Stradale",
+    code: "F173-SF90", power: "1000 л.с.", accel: "2.5с", top: "340 км/ч",
+    price: "от 48 200 000 ₽", color: "#c4172d",
+    img: "https://placehold.co/900x600/1a1112/c4172d?text=Ferrari+SF90+Stradale",
+    desc: "Флагманский суперкар и первый серийный Ferrari с полным приводом. Три электромотора и турбированный V8 в сумме выдают 1000 л.с. — разгон до сотни занимает 2.5 секунды. SF90 Stradale вобрал технологии, отработанные на гоночных прототипах бренда, и при этом способен проехать несколько километров в полностью электрическом режиме."
+  },
+  {
+    id: "roma", brand: "ferrari", brandLabel: "Ferrari", model: "Roma",
+    code: "F169-ROMA", power: "620 л.с.", accel: "3.4с", top: "320 км/ч",
+    price: "от 24 600 000 ₽", color: "#c4172d",
+    img: "https://placehold.co/900x600/1a1112/c4172d?text=Ferrari+Roma",
+    desc: "Гран-туризмо 2+2 в духе итальянского dolce vita 1960-х: длинный капот, чистые линии, минимум декоративных элементов. Roma создавался как более сдержанный и элегантный Ferrari для ежедневных поездок, не жертвуя при этом характером — под капотом 620-сильный битурбо V8."
+  },
+  {
+    id: "gt63", brand: "mercedes", brandLabel: "Mercedes-AMG", model: "GT 63 S",
+    code: "W463-GT63", power: "805 л.с.", accel: "3.2с", top: "315 км/ч",
+    price: "от 21 100 000 ₽", color: "#9fb4be",
+    img: "https://placehold.co/900x600/12161a/9fb4be?text=Mercedes-AMG+GT+63+S",
+    desc: "Четырёхдверное купе, объединяющее комфорт представительского седана и характер трекового автомобиля AMG. В топовой версии E Performance гибридная установка на базе V8 выдаёт 805 л.с. Полный привод и заднее рулевое управление делают GT 63 S уверенным как на трассе, так и в городе."
+  },
+  {
+    id: "s580", brand: "mercedes", brandLabel: "Mercedes-Benz", model: "S 580 4MATIC",
+    code: "W223-S580", power: "503 л.с.", accel: "4.4с", top: "250 км/ч",
+    price: "от 16 300 000 ₽", color: "#9fb4be",
+    img: "https://placehold.co/900x600/12161a/9fb4be?text=Mercedes-Benz+S+580",
+    desc: "Флагманский седан марки и эталон представительского комфорта. Адаптивная пневмоподвеска, система заднего рулевого управления и салон с массой технологий делают S 580 одним из самых тихих и плавных автомобилей в своём классе — при этом 503-сильный V8 обеспечивает уверенную динамику."
+  },
+  {
+    id: "gle63", brand: "mercedes", brandLabel: "Mercedes-AMG", model: "GLE 63 S Coupe",
+    code: "C167-GLE63", power: "612 л.с.", accel: "3.8с", top: "280 км/ч",
+    price: "от 18 700 000 ₽", color: "#9fb4be",
+    img: "https://placehold.co/900x600/12161a/9fb4be?text=Mercedes-AMG+GLE+63+S",
+    desc: "Спортивный внедорожник в кузове купе с покатой крышей и мощным 612-сильным V8. Активная электронная стабилизация кузова почти устраняет крены в поворотах, а полный привод 4MATIC+ обеспечивает сцепление с дорогой в любую погоду — редкое сочетание внедорожной практичности и спортивного характера."
+  },
+  {
+    id: "911turbo", brand: "porsche", brandLabel: "Porsche", model: "911 Turbo S",
+    code: "992-TURBOS", power: "650 л.с.", accel: "2.7с", top: "330 км/ч",
+    price: "от 26 400 000 ₽", color: "#d4a017",
+    img: "https://placehold.co/900x600/16140e/d4a017?text=Porsche+911+Turbo+S",
+    desc: "Вершина линейки 911: биturbo шестицилиндровый оппозитный двигатель, полный привод и активная аэродинамика. Turbo S остаётся спорткаром на каждый день — с богатой шумоизоляцией и просторным для этого класса салоном, но разгоняется быстрее большинства суперкаров благодаря непревзойдённой тяге на всех оборотах."
+  },
+  {
+    id: "taycan", brand: "porsche", brandLabel: "Porsche", model: "Taycan Turbo S",
+    code: "J1-TAYCANS", power: "761 л.с.", accel: "2.8с", top: "260 км/ч",
+    price: "от 19 900 000 ₽", color: "#d4a017",
+    img: "https://placehold.co/900x600/16140e/d4a017?text=Porsche+Taycan+Turbo+S",
+    desc: "Полностью электрический флагман Porsche с двухступенчатой коробкой передач на заднюю ось — редкое инженерное решение для EV. Taycan Turbo S способен повторять разгон до 260 км/ч несколько раз подряд без потери мощности, что делает его единственным электромобилем, действительно созданным для трека."
+  },
+  {
+    id: "huracan", brand: "lamborghini", brandLabel: "Lamborghini", model: "Huracán Tecnica",
+    code: "LB724-TEC", power: "640 л.с.", accel: "3.2с", top: "310 км/ч",
+    price: "от 29 500 000 ₽", color: "#f5a623",
+    img: "https://placehold.co/900x600/1a1408/f5a623?text=Lamborghini+Huracan+Tecnica",
+    desc: "Атмосферный V10 без турбонаддува — редкость в 2026 году — выдаёт звук и отклик педали газа, которые невозможно повторить электроникой. Tecnica создан как мост между дорожным Huracán и трековой версией STO: облегчённый кузов, задний привод и настройки шасси, заточенные под управляемость на пределе."
+  },
+  {
+    id: "urus", brand: "lamborghini", brandLabel: "Lamborghini", model: "Urus S",
+    code: "LB824-URUS", power: "666 л.с.", accel: "3.5с", top: "305 км/ч",
+    price: "от 22 800 000 ₽", color: "#f5a623",
+    img: "https://placehold.co/900x600/1a1408/f5a623?text=Lamborghini+Urus+S",
+    desc: "Супер-внедорожник, который первым доказал, что кроссовер может разгоняться как суперкар. Urus S сочетает практичность высокой посадки и багажника с 666-сильным твин-турбо V8 и характерным для бренда агрессивным дизайном — включая шестиугольные акценты по всему кузову."
+  },
+  {
+    id: "m5", brand: "bmw", brandLabel: "BMW M", model: "M5",
+    code: "F90-M5", power: "727 л.с.", accel: "3.1с", top: "305 км/ч",
+    price: "от 17 200 000 ₽", color: "#4f83cc",
+    img: "https://placehold.co/900x600/0e141a/4f83cc?text=BMW+M5",
+    desc: "Гибридная силовая установка объединяет 4.4-литровый V8 с электромотором — суммарно 727 сил и полный привод M xDrive с возможностью полностью заднеприводного режима для дрифта. M5 остаётся бизнес-седаном по форме, но по динамике конкурирует с суперкарами предыдущего поколения."
+  },
+  {
+    id: "xm", brand: "bmw", brandLabel: "BMW M", model: "XM",
+    code: "G09-XM", power: "748 л.с.", accel: "3.8с", top: "270 км/ч",
+    price: "от 23 900 000 ₽", color: "#4f83cc",
+    img: "https://placehold.co/900x600/0e141a/4f83cc?text=BMW+XM",
+    desc: "Первый самостоятельный внедорожник дивизиона M за более чем 30 лет и первый серийный гибрид M. Массивная решётка-«почка» и вертикальные задние фонари делают XM самым узнаваемым BMW последних лет, а 748-сильная гибридная установка — самым мощным серийным двигателем в истории марки."
+  },
+];
+
+const grid = document.getElementById('grid');
+const searchInput = document.getElementById('search');
+const countEl = document.getElementById('count');
+const filterRow = document.getElementById('filterRow');
+let activeBrand = 'all';
+
+// Строим кнопки фильтра динамически из списка марок в CARS
+const brandOrder = [];
+CARS.forEach(c => { if(!brandOrder.includes(c.brand)) brandOrder.push(c.brand); });
+const brandLabels = {
+  ferrari: "Ferrari",
+  mercedes: "Mercedes-Benz",
+  porsche: "Porsche",
+  lamborghini: "Lamborghini",
+  bmw: "BMW"
+};
+
+filterRow.innerHTML = ['<button class="filter-btn active" data-brand="all">Все</button>']
+  .concat(brandOrder.map(b => `<button class="filter-btn" data-brand="${b}">${brandLabels[b]}</button>`))
+  .join('');
+
+function render(){
+  const q = searchInput.value.trim().toLowerCase();
+  const filtered = CARS.filter(c => {
+    const matchesBrand = activeBrand === 'all' || c.brand === activeBrand;
+    const haystack = (c.brandLabel + ' ' + c.model).toLowerCase();
+    const matchesSearch = haystack.includes(q);
+    return matchesBrand && matchesSearch;
+  });
+
+  countEl.textContent = filtered.length;
+
+  if(filtered.length === 0){
+    grid.innerHTML = `<div class="empty">Ничего не найдено по запросу «<b>${escapeHtml(searchInput.value)}</b>».<br>Попробуйте другой запрос или сбросьте фильтр.</div>`;
+    return;
+  }
+
+  grid.innerHTML = filtered.map(c => `
+    <article class="card">
+      <div class="corner"></div>
+      <span class="code">${c.code}</span>
+      <div class="card-media">
+        <span class="badge" style="--accent:${c.color}">${c.brandLabel}</span>
+        <img src="${c.img}" alt="${c.brandLabel} ${c.model}" loading="lazy">
+      </div>
+      <div class="card-body">
+        <div class="card-brand">${c.brandLabel}</div>
+        <div class="card-model">${c.model}</div>
+        <div class="spec-grid">
+          <div class="spec"><div class="val">${c.power}</div><div class="lbl">МОЩНОСТЬ</div></div>
+          <div class="spec"><div class="val">${c.accel}</div><div class="lbl">0–100 КМ/Ч</div></div>
+          <div class="spec"><div class="val">${c.top}</div><div class="lbl">МАКС. СКОРОСТЬ</div></div>
+        </div>
+        <div class="card-foot">
+          <div class="price">${c.price}<span>цена без скидок</span></div>
+          <button class="view-btn" onclick="openModal('${c.id}')">Подробнее</button>
+        </div>
+      </div>
+    </article>
+  `).join('');
+}
+
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+searchInput.addEventListener('input', render);
+filterRow.addEventListener('click', (e) => {
+  const btn = e.target.closest('.filter-btn');
+  if(!btn) return;
+  filterRow.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  activeBrand = btn.dataset.brand;
+  render();
+});
+
+render();
+
+// ---------- MOBILE NAV ----------
+const navToggle = document.getElementById('navToggle');
+const mobileMenu = document.getElementById('mobileMenu');
+
+function closeMobileMenu(){
+  navToggle.classList.remove('open');
+  navToggle.setAttribute('aria-expanded', 'false');
+  mobileMenu.classList.remove('open');
+}
+
+navToggle.addEventListener('click', () => {
+  const isOpen = mobileMenu.classList.toggle('open');
+  navToggle.classList.toggle('open', isOpen);
+  navToggle.setAttribute('aria-expanded', String(isOpen));
+});
+
+mobileMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMobileMenu));
+const overlay = document.getElementById('overlay');
+const modalMedia = document.getElementById('modalMedia');
+const modalBadge = document.getElementById('modalBadge');
+const modalBrand = document.getElementById('modalBrand');
+const modalTitle = document.getElementById('modalTitle');
+const modalDesc = document.getElementById('modalDesc');
+const modalSpecs = document.getElementById('modalSpecs');
+const modalPrice = document.getElementById('modalPrice');
+let lastFocused = null;
+
+function openModal(id){
+  const c = CARS.find(car => car.id === id);
+  if(!c) return;
+
+  modalMedia.querySelectorAll('img').forEach(el => el.remove());
+  const img = document.createElement('img');
+  img.src = c.img;
+  img.alt = c.brandLabel + ' ' + c.model;
+  modalMedia.appendChild(img);
+  modalMedia.querySelector('.modal-close') || modalMedia.appendChild(document.getElementById('modalClose'));
+
+  modalBadge.textContent = c.brandLabel;
+  modalBadge.style.setProperty('--accent', c.color);
+  modalBrand.textContent = c.brandLabel + ' · ' + c.code;
+  modalTitle.textContent = c.model;
+  modalDesc.textContent = c.desc;
+  modalPrice.innerHTML = c.price + '<span>цена без скидок</span>';
+  currentCar = c;
+
+  modalSpecs.innerHTML = `
+    <div class="modal-spec"><div class="val">${c.power}</div><div class="lbl">Мощность</div></div>
+    <div class="modal-spec"><div class="val">${c.accel}</div><div class="lbl">0–100 км/ч</div></div>
+    <div class="modal-spec"><div class="val">${c.top}</div><div class="lbl">Макс. скорость</div></div>
+  `;
+
+  lastFocused = document.activeElement;
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  document.getElementById('modalClose').focus();
+}
+
+function closeModal(){
+  overlay.classList.remove('open');
+  document.body.style.overflow = '';
+  if(lastFocused) lastFocused.focus();
+}
+
+document.getElementById('modalClose').addEventListener('click', closeModal);
+overlay.addEventListener('click', (e) => { if(e.target === overlay) closeModal(); });
+document.addEventListener('keydown', (e) => { if(e.key === 'Escape' && overlay.classList.contains('open')) closeModal(); });
+
+// ---------- BOOKING FORM LOGIC ----------
+let currentCar = null;
+let leadContext = '';
+const bookOverlay = document.getElementById('bookOverlay');
+const bookForm = document.getElementById('bookForm');
+const bookSuccess = document.getElementById('bookSuccess');
+const bookTitle = document.getElementById('bookTitle');
+const inputName = document.getElementById('inputName');
+const inputPhone = document.getElementById('inputPhone');
+const inputDate = document.getElementById('inputDate');
+const successCarName = document.getElementById('successCarName');
+let bookLastFocused = null;
+
+inputDate.min = new Date().toISOString().split('T')[0];
+
+document.getElementById('modalCta').addEventListener('click', () => {
+  closeModal();
+  openBooking(currentCar ? (currentCar.brandLabel + ' ' + currentCar.model) : 'Тест-драйв');
+});
+
+function openBooking(label){
+  bookTitle.textContent = label || 'Заявка';
+  leadContext = label || 'Заявка';
+  bookForm.classList.remove('hide');
+  bookSuccess.classList.remove('show');
+  bookLastFocused = document.activeElement;
+  bookOverlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => inputName.focus(), 350);
+}
+
+function closeBooking(){
+  bookOverlay.classList.remove('open');
+  document.body.style.overflow = '';
+  if(bookLastFocused) bookLastFocused.focus();
+}
+
+function setFieldError(fieldId, isInvalid){
+  const field = document.getElementById(fieldId);
+  field.classList.toggle('invalid', isInvalid);
+}
+
+function validatePhone(value){
+  // допускает +7 900 000-00-00, 8 (900) 000 00 00 и т.п. — минимум 10 цифр
+  const digits = value.replace(/\D/g, '');
+  return digits.length >= 10 && digits.length <= 12;
+}
+
+bookForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+
+  const nameOk = inputName.value.trim().length >= 2;
+  const phoneOk = validatePhone(inputPhone.value);
+  const dateOk = inputDate.value !== '' && inputDate.value >= inputDate.min;
+
+  setFieldError('fieldName', !nameOk);
+  setFieldError('fieldPhone', !phoneOk);
+  setFieldError('fieldDate', !dateOk);
+
+  if(!nameOk || !phoneOk || !dateOk){
+    const firstInvalid = bookForm.querySelector('.invalid input');
+    if(firstInvalid) firstInvalid.focus();
+    return;
+  }
+
+  // Здесь в реальном проекте нужен запрос к вашему backend / сервису форм
+  // (например fetch('/api/leads', {method:'POST', body: JSON.stringify({...})}))
+  // либо интеграция с CRM. В этой демо-версии заявка не покидает браузер.
+  successCarName.textContent = leadContext;
+  bookForm.classList.add('hide');
+  bookSuccess.classList.add('show');
+  bookForm.reset();
+  ['fieldName','fieldPhone','fieldDate'].forEach(id => setFieldError(id, false));
+});
+
+// живая очистка ошибки при вводе
+[inputName, inputPhone, inputDate].forEach(input => {
+  input.addEventListener('input', () => {
+    setFieldError(input.closest('.field').id, false);
+  });
+});
+
+document.getElementById('bookClose').addEventListener('click', closeBooking);
+document.getElementById('successClose').addEventListener('click', closeBooking);
+bookOverlay.addEventListener('click', (e) => { if(e.target === bookOverlay) closeBooking(); });
+document.addEventListener('keydown', (e) => { if(e.key === 'Escape' && bookOverlay.classList.contains('open')) closeBooking(); });
+</script>
+</body>
+</html>
